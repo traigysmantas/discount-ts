@@ -24,30 +24,28 @@ export class AccumulatedDiscountRule implements DiscountRule {
     return accumulatedDiscount < this.MAX_DISCOUNT;
   }
 
-  get maxDiscount() {
-    return this.MAX_DISCOUNT;
-  }
-
-  private async getAccumulatedDiscount(day: InputTransaction['day']) {
-    const monthKey = this.buildMonthKey(day);
-    const accumulatedDiscount = (await this.cache.get(monthKey)) ?? 0;
-
-    return accumulatedDiscount;
-  }
-
-  async saveDiscount({ day, discount }: { day: Date; discount: number }) {
-    const accumulatedDiscount = await this.getAccumulatedDiscount(day);
+  async saveDiscount({
+    day,
+    discount,
+    availableDiscountLeft,
+  }: {
+    day: Date;
+    discount: number;
+    availableDiscountLeft: number;
+  }) {
+    const accumulatedDiscount = this.MAX_DISCOUNT - availableDiscountLeft;
 
     await this.cache.set({ key: this.buildMonthKey(day), value: accumulatedDiscount + discount });
   }
 
   async calculate({ day }: InputTransaction) {
-    const accumulatedDiscount = await this.getAccumulatedDiscount(day);
+    const monthKey = this.buildMonthKey(day);
+    const accumulatedDiscount = (await this.cache.get(monthKey)) ?? 0;
 
     if (!this.isDiscountApplicable(accumulatedDiscount)) {
       return null;
     }
 
-    return this.maxDiscount - accumulatedDiscount;
+    return this.MAX_DISCOUNT - accumulatedDiscount;
   }
 }

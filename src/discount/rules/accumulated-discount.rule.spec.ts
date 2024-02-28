@@ -42,18 +42,11 @@ describe(`${AccumulatedDiscountRule.name}`, () => {
       jest.resetAllMocks();
     });
 
-    it('calls cache to get monthly accumulated discount', async () => {
-      const { day } = defaultInputTransaction;
-      await accumulatedDiscountRule.saveDiscount({ day, discount: 5.15 });
-
-      expect(cache.get).toHaveBeenCalledWith('ACCUMULATED-2024-1');
-    });
-
     it('sets cache with sum of discount and accumulated discount', async () => {
       const { day } = defaultInputTransaction;
-      await accumulatedDiscountRule.saveDiscount({ day, discount: 5.15 });
+      await accumulatedDiscountRule.saveDiscount({ day, availableDiscountLeft: 7, discount: 5.5 });
 
-      expect(cache.set).toHaveBeenCalledWith({ key: 'ACCUMULATED-2024-1', value: 8.26 });
+      expect(cache.set).toHaveBeenCalledWith({ key: 'ACCUMULATED-2024-1', value: 8.5 });
     });
   });
 

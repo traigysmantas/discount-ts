@@ -24,27 +24,27 @@ export class DiscountCalculator {
   }
 
   private getAvailableDiscount({
-    leftDiscount,
+    availableDiscountLeft,
     transactionDiscount,
   }: {
-    leftDiscount: number;
+    availableDiscountLeft: number;
     transactionDiscount: number;
   }) {
-    return transactionDiscount > leftDiscount ? leftDiscount : transactionDiscount;
+    return transactionDiscount > availableDiscountLeft ? availableDiscountLeft : transactionDiscount;
   }
 
   async calculateDiscountAndPrice(transaction: InputTransaction): Promise<{ discount: number; price: number }> {
     const fullPrice = await this.cache.get(this.buildPackageKey(transaction));
-    const leftDiscount = await this.accumulatedDiscountRule.calculate(transaction);
+    const availableDiscountLeft = await this.accumulatedDiscountRule.calculate(transaction);
 
-    if (!leftDiscount) {
+    if (!availableDiscountLeft) {
       return { discount: 0, price: fullPrice };
     }
 
     const transactionDiscount = await this.findTransactionDiscount(transaction);
-    const discount = this.getAvailableDiscount({ leftDiscount, transactionDiscount });
+    const discount = this.getAvailableDiscount({ availableDiscountLeft, transactionDiscount });
 
-    await this.accumulatedDiscountRule.saveDiscount({ day: transaction.day, discount });
+    await this.accumulatedDiscountRule.saveDiscount({ day: transaction.day, availableDiscountLeft, discount });
 
     return { discount, price: fullPrice - discount };
   }
