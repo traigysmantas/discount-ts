@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { DiscountRule } from './discount-rule.interface';
 import { PackageProvider } from '../../transaction/types/package-provider.type';
 import { InputTransaction } from '../../transaction/types/input-transaction.type';
@@ -9,15 +9,17 @@ import { DbPort } from '../../package-provider/db.port';
  * All S shipments should always match the lowest S package price among the providers.
  */
 @Injectable()
-export class SmallShipmentRule implements DiscountRule {
+export class SmallShipmentRule implements DiscountRule, OnModuleInit {
   ruleName = SmallShipmentRule.name;
   private lowestShipmentPrice: number;
 
   constructor(
     private readonly packageProviderDb: DbPort<PackageProvider>,
     private readonly cache: CachePort<number>,
-  ) {
-    this.getLowestDiscountPrice();
+  ) {}
+
+  async onModuleInit() {
+    await this.getLowestDiscountPrice();
   }
 
   private async getLowestDiscountPrice() {

@@ -4,14 +4,15 @@ import { CachePort } from '../cache/cache.port';
 import { DiscountCalculator } from '../discount/discount.calculator';
 import { PackageProvider } from './types/package-provider.type';
 import { DbPort } from '../package-provider/db.port';
-import { mapPricesByPackageAndProvider, getInputFile } from '../utils';
+import { mapPricesByPackageAndProvider } from '../utils/map-prices-by-provider';
 import { TransactionValidator } from './transaction.validator';
 import { TransactionTransformer } from './transaction.transformer';
+import { getInputFile } from '../utils/get-input-file';
 
 @Injectable()
 export class TransactionCalculator {
   constructor(
-    private readonly cache: CachePort<number>,
+    private readonly packagePriceCache: CachePort<number>,
     private readonly packageProviderDb: DbPort<PackageProvider>,
     private readonly discountCalculator: DiscountCalculator,
     private readonly validator: TransactionValidator,
@@ -30,7 +31,6 @@ export class TransactionCalculator {
       }
 
       const transaction = this.transformer.transformToTransaction(transactionDetails);
-
       const { discount, price } = await this.discountCalculator.calculateDiscountAndPrice(transaction);
 
       outputData.push(this.transformer.transformToOutput({ ...transaction, discount, price }));
@@ -41,7 +41,7 @@ export class TransactionCalculator {
 
   async init(fileDirectory?: string): Promise<string> {
     const packageProviders = await this.packageProviderDb.getAll();
-    await this.cache.setMultiple(mapPricesByPackageAndProvider(packageProviders));
+    await this.packagePriceCache.setMultiple(mapPricesByPackageAndProvider(packageProviders));
 
     const rawTransactions = await getInputFile(fileDirectory);
 

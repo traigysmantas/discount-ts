@@ -1,15 +1,7 @@
 import { PackageProvider } from '../transaction/types/package-provider.type';
-import { getIsoDay, mapPricesByPackageAndProvider } from './index';
 import { PackageName } from '../transaction/enums/package-name.enum';
 import { PackageSize } from '../transaction/enums/package-size.enum';
-
-describe(`${getIsoDay.name}`, () => {
-  it('returns year-month-day from date object', () => {
-    const result = getIsoDay(new Date('2024-01-01T05:00'));
-
-    expect(result).toBe('2024-01-01');
-  });
-});
+import { mapPricesByPackageAndProvider } from './map-prices-by-provider';
 
 describe(`${mapPricesByPackageAndProvider.name}`, () => {
   const mockPackageProviders: PackageProvider[] = [

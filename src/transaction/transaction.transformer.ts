@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { PackageProvider } from './types/package-provider.type';
 import { InputTransaction } from './types/input-transaction.type';
-import { getIsoDay } from '../utils';
+import { getIsoDay } from '../utils/get-iso-day';
 import { OutputTransaction } from './types/output-transaction.type';
 
 @Injectable()

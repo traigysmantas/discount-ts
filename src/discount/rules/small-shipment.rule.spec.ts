@@ -7,20 +7,10 @@ import { SmallShipmentRule } from './small-shipment.rule';
 import { DbPort } from '../../package-provider/db.port';
 import { PackageProvider } from '../../transaction/types/package-provider.type';
 
-const builtPackageProvidersMock = (providers?: PackageProvider[]) => {
-  return (
-    providers ?? [
-      { name: PackageName.LaPoste, packageSize: PackageSize.Small, price: 1.5 },
-      { name: PackageName.LaPoste, packageSize: PackageSize.Medium, price: 4.9 },
-      { name: PackageName.LaPoste, packageSize: PackageSize.Large, price: 6.9 },
-      { name: PackageName.MondialRelay, packageSize: PackageSize.Small, price: 2.0 },
-    ]
-  );
-};
-
 describe(`${SmallShipmentRule.name}`, () => {
   let smallShipmentRule: SmallShipmentRule;
   let cache: CachePort<number>;
+  let packageProviderDb: DbPort<PackageProvider>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -36,7 +26,7 @@ describe(`${SmallShipmentRule.name}`, () => {
         {
           provide: DbPort<PackageProvider>,
           useValue: {
-            getAll: jest.fn().mockResolvedValue(builtPackageProvidersMock()),
+            getAll: jest.fn(),
           },
         },
       ],
@@ -44,6 +34,7 @@ describe(`${SmallShipmentRule.name}`, () => {
 
     smallShipmentRule = module.get(SmallShipmentRule);
     cache = module.get(CachePort);
+    packageProviderDb = module.get(DbPort);
   });
 
   describe(`${SmallShipmentRule.prototype.calculate.name}`, () => {
@@ -53,7 +44,14 @@ describe(`${SmallShipmentRule.name}`, () => {
       name: PackageName.LaPoste,
     };
 
-    beforeEach(() => {
+    beforeEach(async () => {
+      jest.spyOn(packageProviderDb, 'getAll').mockResolvedValue([
+        { name: PackageName.LaPoste, packageSize: PackageSize.Small, price: 1.5 },
+        { name: PackageName.LaPoste, packageSize: PackageSize.Medium, price: 4.9 },
+        { name: PackageName.LaPoste, packageSize: PackageSize.Large, price: 6.9 },
+        { name: PackageName.MondialRelay, packageSize: PackageSize.Small, price: 2.0 },
+      ]);
+      await smallShipmentRule.onModuleInit();
       jest.spyOn(cache, 'get').mockResolvedValue(null);
     });
 
@@ -83,13 +81,13 @@ describe(`${SmallShipmentRule.name}`, () => {
       expect(discount).toEqual(null);
     });
 
-    // TODO!
-    // it('returns null if shipmentPrice for Small packages were not found', async () => {
-    //   jest.spyOn(cache, 'get').mockResolvedValue(1);
-    //   const discount = await smallShipmentRule.calculate(defaultInputTransaction);
+    it('returns null if lowest price for shipment was not found', async () => {
+      jest.spyOn(packageProviderDb, 'getAll').mockResolvedValue([]);
+      await smallShipmentRule.onModuleInit();
+      const discount = await smallShipmentRule.calculate(defaultInputTransaction);
 
-    //   expect(discount).toEqual(null);
-    // });
+      expect(discount).toEqual(null);
+    });
 
     it('returns null if shipment price is not found', async () => {
       const discount = await smallShipmentRule.calculate(defaultInputTransaction);
