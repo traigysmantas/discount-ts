@@ -15,18 +15,18 @@ export class TransactionValidator {
     return Object.values(PackageSize).includes(size as PackageSize);
   }
 
-  private isValidProvider(name: PackageName | string): boolean {
-    return Object.values(PackageName).includes(name as PackageName);
+  private isValidPackageName(rawProviderName: PackageName | string): boolean {
+    return Object.values(PackageName).includes(rawProviderName as PackageName);
   }
 
-  isInputTransactionValid(data: string[]): boolean {
-    if (data.length !== 3) {
+  isInputTransactionValid(input: string[]): boolean {
+    if (input.length !== 3) {
       return false;
     }
 
-    const [rawDate, rawSize, rawProvider] = data;
+    const [rawDate, rawSize, rawProviderName] = input;
 
-    if (!this.isValidDate(rawDate) || !this.isValidSize(rawSize) || !this.isValidProvider(rawProvider)) {
+    if (!this.isValidDate(rawDate) || !this.isValidSize(rawSize) || !this.isValidPackageName(rawProviderName)) {
       return false;
     }
 

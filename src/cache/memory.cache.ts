@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CachePort } from './cache.port';
 
 @Injectable()
-export class MemoryCache<T extends string> extends CachePort<T> {
+export class MemoryCache<T extends string | object | number> extends CachePort<T> {
   private cache: Record<string, T> = {};
 
   constructor() {

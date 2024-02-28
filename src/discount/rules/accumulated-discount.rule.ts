@@ -15,7 +15,7 @@ export class AccumulatedDiscountRule implements DiscountRule {
   constructor(private readonly cache: CachePort<number>) {}
 
   private buildMonthKey(day: InputTransaction['day']) {
-    const PREFIX = 'accumulated';
+    const PREFIX = 'ACCUMULATED';
 
     return `${PREFIX}-${day.getFullYear()}-${day.getMonth() + 1}`;
   }
@@ -24,7 +24,11 @@ export class AccumulatedDiscountRule implements DiscountRule {
     return accumulatedDiscount < this.MAX_DISCOUNT;
   }
 
-  async getAccumulatedDiscount(day: InputTransaction['day']) {
+  get maxDiscount() {
+    return this.MAX_DISCOUNT;
+  }
+
+  private async getAccumulatedDiscount(day: InputTransaction['day']) {
     const monthKey = this.buildMonthKey(day);
     const accumulatedDiscount = (await this.cache.get(monthKey)) ?? 0;
 
@@ -38,13 +42,12 @@ export class AccumulatedDiscountRule implements DiscountRule {
   }
 
   async calculate({ day }: InputTransaction) {
-    const monthKey = this.buildMonthKey(day);
-    const accumulatedDiscount = (await this.cache.get(monthKey)) ?? 0;
+    const accumulatedDiscount = await this.getAccumulatedDiscount(day);
 
     if (!this.isDiscountApplicable(accumulatedDiscount)) {
       return null;
     }
 
-    return this.MAX_DISCOUNT - accumulatedDiscount;
+    return this.maxDiscount - accumulatedDiscount;
   }
 }

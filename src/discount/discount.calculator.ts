@@ -42,7 +42,6 @@ export class DiscountCalculator {
     }
 
     const transactionDiscount = await this.findTransactionDiscount(transaction);
-
     const discount = this.getAvailableDiscount({ leftDiscount, transactionDiscount });
 
     await this.accumulatedDiscountRule.saveDiscount({ day: transaction.day, discount });

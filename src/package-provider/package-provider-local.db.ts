@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DbPort } from './db.port';
 import { PackageProvider } from '../transaction/types/package-provider.type';
-import { PackageName } from 'src/transaction/enums/package-name.enum';
-import { PackageSize } from 'src/transaction/enums/package-size.enum';
+import { PackageName } from '../transaction/enums/package-name.enum';
+import { PackageSize } from '../transaction/enums/package-size.enum';
 
 @Injectable()
 export class PackageProviderLocalDb extends DbPort<PackageProvider> {

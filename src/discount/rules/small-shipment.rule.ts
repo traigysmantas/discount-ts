@@ -36,7 +36,7 @@ export class SmallShipmentRule implements DiscountRule {
       return null;
     }
 
-    const packageShipmentPrice = await this.cache.get(`${name}-${packageSize}`);
+    const packageShipmentPrice = (await this.cache.get(`${name}-${packageSize}`)) ?? 0;
     const discount = packageShipmentPrice - this.lowestShipmentPrice;
 
     return discount > 0 ? discount : null;
