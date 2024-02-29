@@ -34,16 +34,21 @@ export class DiscountCalculator {
   }
 
   async calculateDiscountAndPrice(transaction: InputTransaction): Promise<{ discount: number; price: number }> {
+    // 1. get transaction price from cache (using previously stored values from price to package-provider map)
     const fullPrice = await this.cache.get(this.buildPackageKey(transaction));
+    // 2. get available discount from accumulated discount rule
     const availableDiscountLeft = await this.accumulatedDiscountRule.calculate(transaction);
 
+    // 3.1 if no discount is applicable, return full price.
     if (!availableDiscountLeft) {
       return { discount: 0, price: fullPrice };
     }
 
+    // 3.2 Find discount of other rules and calculate discount taking in account existing available discount.
     const transactionDiscount = await this.findTransactionDiscount(transaction);
     const discount = this.getAvailableDiscount({ availableDiscountLeft, transactionDiscount });
 
+    // 3.3 store new accumulated discount in cache.
     await this.accumulatedDiscountRule.saveDiscount({ day: transaction.day, availableDiscountLeft, discount });
 
     return { discount, price: fullPrice - discount };

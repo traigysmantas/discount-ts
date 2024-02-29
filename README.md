@@ -105,10 +105,32 @@ Your program should output transactions and append reduced shipment price and a 
 
 - Your solution will be evaluated based on how well all requirements are implemented.
 
+## How to run locally
+
+1. Install dependencies
+
+```
+npm install
+```
+
+2. Run application
+
+```
+npm run start
+```
+
+## How to run tests
+
+1. Unit tests
+
+```
+npm run test
+```
+
+2. Integration test with sample data
+
+```
+npm run test:e2e
+```
+
 ---
-
-### Important
-
-_Vinted, UAB collects, uses and stores your provided information to assess your suitability to enter into employment contract and suggest a job offer for you (we have the intention to enter into a contract with you (Art. 6 (1) (b) of GDPR). For more information on how Vinted, UAB uses your data and your rights, please see Vinted Job Applicant Privacy Policy available here: https://www.vinted.com/jobs/policy_
-
-_By submitting the response to the given task, you hereby consent that Vinted, UAB shall have the right to reproduce and use the response that you submit for the purpose of its recruitment processes, which will be anonymised after your recruitment process._
